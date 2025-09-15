@@ -9,6 +9,7 @@ function HomePage() {
     const [wheelBackground, setWheelBackground] = useState('');
     const [transform, setTransform] = useState('rotate(0deg)');
     const [spinning, setSpinning] = useState(false);
+    const [activeTab, setActiveTab] = useState("contestants");
     const spinCount = useRef(0);
 
     const segmentColors = [
@@ -84,8 +85,6 @@ function HomePage() {
         };
     };
 
-    
-
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen app-container">
@@ -101,8 +100,8 @@ function HomePage() {
                 }
                 .wheel-container {
                     position: relative;
-                    width: 18rem;
-                    height: 18rem;
+                    width: 22rem;
+                    height: 22rem;
                     cursor: pointer;
                     margin: 2rem;
                 }
@@ -150,6 +149,61 @@ function HomePage() {
                     border-right: 30px solid #f59e0b;
                     z-index: 10;
                 }
+                .spin-button {
+                    background-color: #f59e0b;
+                    color: #1f2937;
+                    font-weight: 700;
+                    padding: 1rem 2.5rem;
+                    border-radius: 1rem;
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                    transition: background-color 0.2s;
+                    font-size: 1.25rem;
+                }
+
+                .spin-button:hover {
+                    background-color: #fcd34d;
+                }
+
+                .spin-button:disabled {
+                    background-color: #4b5563;
+                    cursor: not-allowed;
+                }
+
+                .tab-panel {
+                    background-color: #ffffff;
+                    padding: 1.5rem;
+                    border-radius: 1rem;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                    width: 100%;
+                    max-width: 24rem;
+                }
+
+                .tab-buttons {
+                    display: flex;
+                    justify-content: space-around;
+                    margin-bottom: 0.5rem;
+                    border-bottom: 2px solid #e5e7eb;
+                }
+
+                .tab-button {
+                    flex-grow: 1;
+                    padding: 0.75rem;
+                    text-align: center;
+                    font-weight: 600;
+                    color: #6b7280;
+                    cursor: pointer;
+                    transition: color 0.2s, border-bottom-color 0.2s;
+                    border-bottom: 2px solid transparent;
+                }
+
+                .tab-button.active {
+                    color: #f59e0b;
+                    border-bottom-color: #f59e0b;
+                }
+
+                .tab-button:hover {
+                    color: #f59e0b;
+                }
                 
                 `
             }
@@ -171,12 +225,63 @@ function HomePage() {
                             <div className="center-circle"></div>
                         </div>
                         <div className="pointer"></div>
-
+                    </div>
+                    <div className="text-center mt-4">
+                        <button
+                            onClick={handleSpin}
+                            disabled={spinning || options.length == 0}
+                            className="spin-button"
+                        >
+                            {spinning ? "Spinning..." : "Spin"}
+                        </button>
                     </div>
 
                 </div>
                 <div className="flex flex-col items-center lg:items-start w-full lg:w-1/4 mt-8 lg:mt-0">
+                    <div className="tab-panel">
+                        <div className="tab-buttons">
+                            <button
+                                className={`tab-button ${activeTab === "contestants" ? "active" : ''}`}
+                                onClick={() => setActiveTab("contestants")}
+                            >
+                                Contestants
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === "sound" ? "active" : ''}`}
+                                onClick={() => setActiveTab("sound")}
+                            >
+                                Sound
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === "order" ? "active" : ''}`}
+                                onClick={() => setActiveTab("order")}
+                            >
+                                Order
+                            </button>
 
+                        </div>
+                        <div className="tab-content">
+                            {
+                                activeTab === "contestants" && (
+                                    <div className="mb-4">
+                                        <label htmlFor="options-textarea" className="block text-sm font-medium text-gray-700 mb-1">
+                                            Enter a list of names (one per line):
+                                        </label>
+                                        <textarea
+                                            id="options-textarea"
+                                            value={textAreaValue}
+                                            onChange={(e) => setTextAreaValue(e.target.value)}
+                                            rows="8"
+                                            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus-ring-yellow-500"
+                                            placeholder="Enter a contestant name per line..."
+
+                                        />
+                                    </div>
+                                )
+                            }
+                        </div>
+
+                    </div>
                 </div>
 
             </div>
