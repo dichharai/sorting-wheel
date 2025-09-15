@@ -128,8 +128,8 @@ function HomePage() {
                 }
                 .center-circle {
                     position: absolute;
-                    width: 5rem;
-                    height: 5rem;
+                    width: 8rem;
+                    height: 8rem;
                     background-color: #ffffff;
                     border-radius: 9999px;
                     inset: 0;
