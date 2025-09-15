@@ -1,3 +1,5 @@
+import "./global.css";
+
 export const metadata = {
   title: 'Sorting Hat',
   description: 'A spinner for picking contestant order.',

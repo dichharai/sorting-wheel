@@ -5,6 +5,7 @@ import React, { useState, useRef, useEffect } from "react";
 function HomePage() {
     const [textAreaValue, setTextAreaValue] = useState('Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nMitch\nSteve\nDiane\nAli\nRumilung\nMadhavi\nYuanhong\n');
     const [options, setOptions] = useState([]);
+    const [title, setTitle] = useState("Sorting Hat");
     const [wheelBackground, setWheelBackground] = useState('');
     const [transform, setTransform] = useState('rotate(0deg)');
     const [spinning, setSpinning] = useState(false);
@@ -153,9 +154,7 @@ function HomePage() {
                 `
             }
             </style>
-            <h1 className="text-4xl font-bold mb-6 text-center text-yellow-500">
-            Sorting Hat
-            </h1>
+            <h1 className="text-4xl font-bold mb-6 text-center text-yellow-500">{title}</h1>
             <div className="flex flex-col lg:flex-row lg:items-center justify-center w-full gap-8">
                 <div className="flex flex-col items-center w-full lg:w-3/4">
                     <div className="wheel-container" onClick={handleSpin}>
