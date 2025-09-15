@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 
 
 function HomePage() {
-    const [textAreaValue, setTextAreaValue] = useState('Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nMitch\nSteve\nDiane\nAli\nRumilung\nMadhavi');
+    const [textAreaValue, setTextAreaValue] = useState('Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nMitch\nSteve\nDiane\nAli\nRumilung\nMadhavi\nYuanhong\n');
     const [options, setOptions] = useState([]);
     const [wheelBackground, setWheelBackground] = useState('');
     const [transform, setTransform] = useState('rotate(0deg)');
@@ -11,7 +11,7 @@ function HomePage() {
     const spinCount = useRef(0);
 
     const segmentColors = [
-        '#FF6B6B', '#FFD166', '#06D6A0', '#118AB2', '#073B4C', '#A8DADC', '#F4A261', '#E76F51',
+        '#FF6B6B', '#FFD166', '#CCCCFF', '#06D6A0', '#118AB2', '#073B4C', '#A8DADC', '#F4A261', '#E76F51',
         '#2A9D8F', '#264653', '#F4F1DE', '#E07A5F',
     ];
 
@@ -148,17 +148,6 @@ function HomePage() {
                     border-bottom: 15px solid transparent;
                     border-right: 30px solid #f59e0b;
                     z-index: 10;
-                }
-
-                @keyframes bounceIn {
-                    0% {
-                        transform: scale(0);
-                        opacity: 0;
-                    }
-                    100% {
-                        transform: scale(1);
-                        opacity: 1;
-                    }
                 }
                 
                 `
