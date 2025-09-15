@@ -81,7 +81,7 @@ function HomePage() {
         const rotateDegree = (index * degreePerOption) + (degreePerOption / 2) - 90;
         
         return {
-            transform: `rotate(${rotateDegree}deg) translateX(4rem)`,
+            transform: `rotate(${rotateDegree}deg) translateX(6.5rem)`,
         };
     };
 
@@ -100,8 +100,8 @@ function HomePage() {
                 }
                 .wheel-container {
                     position: relative;
-                    width: 22rem;
-                    height: 22rem;
+                    width: 28rem;
+                    height: 28rem;
                     cursor: pointer;
                     margin: 2rem;
                 }
