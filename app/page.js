@@ -149,19 +149,13 @@ function HomePage() {
 
             (function frame() {
                 confettiRef.current({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 180,
-                    origin: {x: 0},
+                    particleCount: 3,
+                    angle: 50,
+                    origin: {x: 0, y: 1},
                     colors: segmentColors,
+                    startVelocity: 70,
                 });
-                confettiRef.current({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 180,
-                    origin: { x: 1},
-                    colors: segmentColors,
-                });
+
                 if (Date.now() < end){
                     requestAnimationFrame(frame);
                 }
@@ -312,6 +306,14 @@ function HomePage() {
                     color: #d1d5db;
                     cursor: not-allowed;
                 }
+                .orders-list {
+                    list-style: none;
+                    padding: 0;
+                    margin: 1rem 0;
+                    overflow-y: auto;
+                    max-height: 20rem;
+                }
+
                 .order-entry {
                     background-color: #e5e7eb;
                     padding: 0.5rem;
@@ -320,19 +322,6 @@ function HomePage() {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                }
-                .download-button {
-                    background-color: #118AB2;
-                    color: #ffffff;
-                    font-weight: 700;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 0.75rem;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    transition: background-color 0.2s;
-                    width: 100%;
-                }
-                .download-button:hover {
-                    background-color: #06D6A0;
                 }
                 
                 `
@@ -368,7 +357,7 @@ function HomePage() {
 
                 </div>
                 <div className="flex flex-col items-center lg:items-start w-full lg:w-1/4 mt-8 lg:mt-0">
-                    <div className="tab-panel">
+                    <div className="tab-panel max-h-105 min-h-105 flex flex-col">
                         <div className="tab-buttons">
                             <button
                                 className={`tab-button ${activeTab === "contestants" ? "active" : ''}`}
@@ -390,10 +379,10 @@ function HomePage() {
                             </button>
 
                         </div>
-                        <div className="tab-content">
+                        <div className="tab-content flex flex-col overflow-y-auto px-1">
                             {
                                 activeTab === "contestants" && (
-                                    <div className="mb-4">
+                                    <div className="mb-4 overflow-y-auto">
                                         <div className="action-button-group">
                                             <button
                                                 onClick={handleShuffleEntries}
@@ -429,24 +418,37 @@ function HomePage() {
                             }
                             {
                                 activeTab === "order" && (
-                                    <div>
-                                        <h3 className="text-xl font-bold text-center mb-2">Order</h3>
-                                        <ul className="winners-list">
-                                            {pastOrders.map((order) => (
-                                                <li key={order.number} className="order-entry">
-                                                    <span>#{order.number} </span>
-                                                    <span className="font-semibold">{order.name}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                        <button
-                                            onClick={handleDownloadOrders}
-                                            className="download-button"
-                                            disabled={pastOrders.length===0}
-                                        >
-                                            Download
-                                        </button>
-                                    </div>
+                                        <>
+                                            <h3 className="text-xl font-bold text-center mb-2 text-gray-800">Order</h3>
+                                            { pastOrders.length > 0 ? (
+                                                <div className="flex-grow overflow-y-auto mb-4">
+                                                    <ul className="orders-list">
+                                                        {pastOrders.map((order, _) => (
+                                                            <li key={order.number} className="order-entry">
+                                                                <span>#{order.number} </span>
+                                                                <span className="font-semibold">{order.name}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+
+                                            ) : (
+                                                <div className="text-center text-gray-500 my-4 flex-grow flex items-center justify-center">
+                                                    <p>No past contestant orders to display.</p>
+                                                </div>
+                                            ) 
+
+                                            }
+                                            
+                                            
+                                            <button
+                                                onClick={handleDownloadOrders}
+                                                className="w-full download-button py-2 px-4 rounded-lg bg-yellow-500 text-white font-semibold hove:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed "
+                                                disabled={pastOrders.length===0}
+                                            >
+                                                Download
+                                            </button>
+                                        </>
                                 )
                             }
                         </div>
