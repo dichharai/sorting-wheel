@@ -13,5 +13,8 @@ Once, `npm` is installed, install required packages:
 npm install react@latest react-dom@latest next@latest
 npm install tailwindcss @tailwindcss/postcss postcss
 ```
+Start your development Node.js server:
+
+`npm run dev`
 
 You can access the **Sorting Hat** spinner [here](https://sorting-hat-dun.vercel.app/).
