@@ -17,6 +17,7 @@ function HomePage() {
     const [orderCount, setOrderCount] = useState(0);
     const [orderIndex, setOrderIndex] = useState(null);
     const spinCount = useRef(0);
+    const confettiRef = useRef(null);
 
     const segmentColors = [
         '#FF6B6B', '#FFD166', '#CCCCFF', '#06D6A0', '#118AB2', '#073B4C', '#A8DADC', '#F4A261', '#E76F51',
@@ -51,6 +52,13 @@ function HomePage() {
     }, [options]);
 
 
+    // Dynamically import the canvas-confetti library 
+    useEffect(() => {
+        import("canvas-confetti").then((confetti) => {
+            confettiRef.current = confetti.default;
+        });
+    }, []);
+
     const handleSpin = async () => {
         if (spinning || options.length === 0) {
           return;
@@ -78,7 +86,12 @@ function HomePage() {
           const contestantName = options[randomIndex];
           setOrderCount(orderCount => orderCount+1);
           setPastOrders(prevOrders => [...prevOrders, {number: orderCount+1, name: contestantName}]);
-    
+          
+          if (confettiRef.current) {
+            fireConfetti();
+          }
+
+
           setTimeout(() => {
             const remainingOptions = options.filter((_, index) => index !== randomIndex);
             setTextAreaValue(remainingOptions.join('\n'));
@@ -127,6 +140,33 @@ function HomePage() {
         document.body.appendChild(link);
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
+    };
+
+    const fireConfetti = () => {
+        if (confettiRef.current) {
+            const duration = 2*1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                confettiRef.current({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 180,
+                    origin: {x: 0},
+                    colors: segmentColors,
+                });
+                confettiRef.current({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 180,
+                    origin: { x: 1},
+                    colors: segmentColors,
+                });
+                if (Date.now() < end){
+                    requestAnimationFrame(frame);
+                }
+            })();
+        }
     };
 
     return (
