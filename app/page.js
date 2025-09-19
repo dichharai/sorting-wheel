@@ -1,7 +1,7 @@
 'use client';
 import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
-import sortIcon from "../public/images/sort-alpha-down.svg";
+import sortIcon from "../public/images/sort-alpha.svg";
 import React, { useState, useRef, useEffect } from "react";
 
 
@@ -16,6 +16,9 @@ function HomePage() {
     const [pastOrders, setPastOrders] = useState([]);
     const [orderCount, setOrderCount] = useState(0);
     const [orderIndex, setOrderIndex] = useState(null);
+    const [ascSort, setAscSort] = useState(false);
+    const [showPickedContestantBox, setShowPickedContestantBox] = useState(false);
+    const [pickedContestant, setPickedContestant] = useState(null);
     const spinCount = useRef(0);
     const confettiRef = useRef(null);
 
@@ -66,6 +69,8 @@ function HomePage() {
     
         setSpinning(true);
         setOrderIndex(null);
+        setShowPickedContestantBox(false);
+        setPickedContestant(null);
 
         
         // Reset transform to ensure the animation is triggered every time
@@ -85,16 +90,21 @@ function HomePage() {
           setOrderIndex(randomIndex);
           const contestantName = options[randomIndex];
           setOrderCount(orderCount => orderCount+1);
+          setPickedContestant(contestantName);
           setPastOrders(prevOrders => [...prevOrders, {number: orderCount+1, name: contestantName}]);
           
           if (confettiRef.current) {
             fireConfetti();
           }
 
+          setShowPickedContestantBox(true);
+
 
           setTimeout(() => {
             const remainingOptions = options.filter((_, index) => index !== randomIndex);
             setTextAreaValue(remainingOptions.join('\n'));
+            setOrderIndex(null);
+            setShowPickedContestantBox(false);
           }, 3000);
         }, 4100); // 4.1 seconds to account for the 4s transition
       };
@@ -117,11 +127,19 @@ function HomePage() {
             [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
         }
         setTextAreaValue(shuffledOptions.join("\n"));
+        setAscSort(false);
     };
 
     const handleSortEntries = () => {
-        const sortedOptions = [...options].sort((a, b) => a.localeCompare(b));
+        let sortedOptions;
+        if (!ascSort) {
+            sortedOptions = [...options].sort((a, b) => a.localeCompare(b));
+        } else {
+            sortedOptions = [...options].sort((a,b) => b.localeCompare(a));
+        }
         setTextAreaValue(sortedOptions.join("\n"));
+        setAscSort(!ascSort);
+        
     };
 
     const handleDownloadOrders = () => {
@@ -165,168 +183,6 @@ function HomePage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen app-container">
-            <style>
-            {
-                `.app-container {
-                    background-color: #f1f5f9;
-                    color: # #1a202c;
-                    padding: 1rem;
-                    font-family: sans-serif;
-                    gap: 2rem;
-                    width: 100%;
-                }
-                .wheel-container {
-                    position: relative;
-                    width: 28rem;
-                    height: 28rem;
-                    cursor: pointer;
-                    margin: 2rem;
-                }
-                .wheel {
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 9999px;
-                    overflow: hidden;
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                    transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
-                }
-                .option-text {
-                    position: absolute;
-                    left: 50%;
-                    top: 50%;
-                    transform-origin: 0 0;
-                    color: white;
-                    font-weight: bold;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-                }
-                .center-circle {
-                    position: absolute;
-                    width: 8rem;
-                    height: 8rem;
-                    background-color: #ffffff;
-                    border-radius: 9999px;
-                    inset: 0;
-                    margin: auto;
-                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-                    pointer-events: none;
-                }
-                .pointer {
-                    position: absolute;
-                    top: 50%;
-                    right: -20px;
-                    transform: translateY(-50%);
-                    width: 0;
-                    height: 0;
-                    border-top: 15px solid transparent;
-                    border-bottom: 15px solid transparent;
-                    border-right: 30px solid #f59e0b;
-                    z-index: 10;
-                }
-                .spin-button {
-                    background-color: #f59e0b;
-                    color: #1f2937;
-                    font-weight: 700;
-                    padding: 1rem 2.5rem;
-                    border-radius: 1rem;
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                    transition: background-color 0.2s;
-                    font-size: 1.25rem;
-                }
-
-                .spin-button:hover {
-                    background-color: #fcd34d;
-                }
-
-                .spin-button:disabled {
-                    background-color: #4b5563;
-                    cursor: not-allowed;
-                }
-
-                .tab-panel {
-                    background-color: #ffffff;
-                    padding: 1.5rem;
-                    border-radius: 1rem;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                    width: 100%;
-                    max-width: 24rem;
-                }
-
-                .tab-buttons {
-                    display: flex;
-                    justify-content: space-around;
-                    margin-bottom: 0.5rem;
-                    border-bottom: 2px solid #e5e7eb;
-                }
-
-                .tab-button {
-                    flex-grow: 1;
-                    padding: 0.75rem;
-                    text-align: center;
-                    font-weight: 600;
-                    color: #6b7280;
-                    cursor: pointer;
-                    transition: color 0.2s, border-bottom-color 0.2s;
-                    border-bottom: 2px solid transparent;
-                }
-
-                .tab-button.active {
-                    color: #f59e0b;
-                    border-bottom-color: #f59e0b;
-                }
-
-                .tab-button:hover {
-                    color: #f59e0b;
-                }
-
-                .action-button-group {
-                    display: flex;
-                    justify-content: flex-start;
-                    gap: 0.75rem;
-                    margin-bottom: 0.25rem;
-                    margin-top: 0.25rem;
-                }
-                .action-button {
-                    background-color: #e5e7eb;
-                    color: #1f2937;
-                    font-weight: 700;
-                    padding: 0.5rem 0.75rem;
-                    border-radius: 0.75rem;
-                    transition: background-color 0.2s;
-                    font-size: 0.875rem; /* text-sm */
-                }
-                .action-button:hover {
-                    background-color: #d1d5db;
-                }
-                .action-button:disabled {
-                    background-color: #f3f4f6;
-                    color: #d1d5db;
-                    cursor: not-allowed;
-                }
-                .orders-list {
-                    list-style: none;
-                    padding: 0;
-                    margin: 1rem 0;
-                    overflow-y: auto;
-                    max-height: 20rem;
-                }
-
-                .order-entry {
-                    background-color: #e5e7eb;
-                    padding: 0.5rem;
-                    border-radius: 0.5rem;
-                    margin-bottom: 0.5rem;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                
-                `
-            }
-            </style>
             <h1 className="text-4xl font-bold mb-6 text-center text-yellow-500">{title}</h1>
             <div className="flex flex-col lg:flex-row lg:items-center justify-center w-full gap-8">
                 <div className="flex flex-col items-center w-full lg:w-3/4">
@@ -455,8 +311,15 @@ function HomePage() {
 
                     </div>
                 </div>
-
             </div>
+            {showPickedContestantBox && (
+                <div className="picked-contestant-modal-overlay">
+                    <div className="picked-contestant-modal">
+                        <h2>#{orderCount}</h2>
+                        <p>{pickedContestant}</p>
+                    </div>
+                </div>
+            )}
         
         </div>
     );
