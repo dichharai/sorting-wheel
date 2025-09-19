@@ -1,20 +1,26 @@
 'use client';
+import Image from "next/image";
+import shuffleIcon from "../public/images/shuffle.svg";
+import sortIcon from "../public/images/sort-alpha-down.svg";
 import React, { useState, useRef, useEffect } from "react";
 
 
 function HomePage() {
-    const [textAreaValue, setTextAreaValue] = useState('Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nMitch\nSteve\nDiane\nAli\nRumilung\nMadhavi\nYuanhong\n');
+    const [textAreaValue, setTextAreaValue] = useState('Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nSteve\nDiane\nRumilung\nMadhavi\nAli\nYuanhong\nMatthew\nMitch\n');
     const [options, setOptions] = useState([]);
     const [title, setTitle] = useState("Sorting Hat");
     const [wheelBackground, setWheelBackground] = useState('');
     const [transform, setTransform] = useState('rotate(0deg)');
     const [spinning, setSpinning] = useState(false);
     const [activeTab, setActiveTab] = useState("contestants");
+    const [pastOrders, setPastOrders] = useState([]);
+    const [orderCount, setOrderCount] = useState(0);
+    const [orderIndex, setOrderIndex] = useState(null);
     const spinCount = useRef(0);
 
     const segmentColors = [
         '#FF6B6B', '#FFD166', '#CCCCFF', '#06D6A0', '#118AB2', '#073B4C', '#A8DADC', '#F4A261', '#E76F51',
-        '#2A9D8F', '#264653', '#F4F1DE', '#E07A5F',
+        '#2A9D8F', '#264653', '#F4F1DE', '#E07A5F', '#20B2AA',
     ];
 
     // Effect to parse textarea value into options
@@ -38,7 +44,7 @@ function HomePage() {
 
             conicGradientString = conicGradientString.slice(0, -2) + ')';
             setWheelBackground(conicGradientString);
-            console.log(`conicGradientString: ${conicGradientString}`);
+            // console.log(`conicGradientString: ${conicGradientString}`);
         } else {
             setWheelBackground('conic-gradient(from 0deg, #A8DADC 0deg, #A8DADC 360deg');
         }
@@ -51,6 +57,8 @@ function HomePage() {
         }
     
         setSpinning(true);
+        setOrderIndex(null);
+
         
         // Reset transform to ensure the animation is triggered every time
         setTransform('rotate(0deg)');
@@ -66,6 +74,10 @@ function HomePage() {
     
         setTimeout(() => {
           setSpinning(false);
+          setOrderIndex(randomIndex);
+          const contestantName = options[randomIndex];
+          setOrderCount(orderCount => orderCount+1);
+          setPastOrders(prevOrders => [...prevOrders, {number: orderCount+1, name: contestantName}]);
     
           setTimeout(() => {
             const remainingOptions = options.filter((_, index) => index !== randomIndex);
@@ -85,6 +97,37 @@ function HomePage() {
         };
     };
 
+    const handleShuffleEntries = () => {
+        const shuffledOptions = [...options];
+        for (let i=shuffledOptions.length-1; i>0; i--){
+            const j = Math.floor(Math.random()*(i+1));
+            [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+        }
+        setTextAreaValue(shuffledOptions.join("\n"));
+    };
+
+    const handleSortEntries = () => {
+        const sortedOptions = [...options].sort((a, b) => a.localeCompare(b));
+        setTextAreaValue(sortedOptions.join("\n"));
+    };
+
+    const handleDownloadOrders = () => {
+        if (pastOrders.length === 0) {
+            return;
+        }
+        const header = "Number,Name\n";
+        const csvContent = header + pastOrders.map(o => `${o.number},"${o.name}"`).join("\n");
+        const blob = new Blob([csvContent], {type: "text/csv;charset=utf-8;"});
+        console.log(`orders: ${csvContent}`);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute("download", "contestantOrders.csv");
+        link.click();
+        document.body.appendChild(link);
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen app-container">
@@ -204,6 +247,53 @@ function HomePage() {
                 .tab-button:hover {
                     color: #f59e0b;
                 }
+
+                .action-button-group {
+                    display: flex;
+                    justify-content: flex-start;
+                    gap: 0.75rem;
+                    margin-bottom: 0.25rem;
+                    margin-top: 0.25rem;
+                }
+                .action-button {
+                    background-color: #e5e7eb;
+                    color: #1f2937;
+                    font-weight: 700;
+                    padding: 0.5rem 0.75rem;
+                    border-radius: 0.75rem;
+                    transition: background-color 0.2s;
+                    font-size: 0.875rem; /* text-sm */
+                }
+                .action-button:hover {
+                    background-color: #d1d5db;
+                }
+                .action-button:disabled {
+                    background-color: #f3f4f6;
+                    color: #d1d5db;
+                    cursor: not-allowed;
+                }
+                .order-entry {
+                    background-color: #e5e7eb;
+                    padding: 0.5rem;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.5rem;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+                .download-button {
+                    background-color: #118AB2;
+                    color: #ffffff;
+                    font-weight: 700;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 0.75rem;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: background-color 0.2s;
+                    width: 100%;
+                }
+                .download-button:hover {
+                    background-color: #06D6A0;
+                }
                 
                 `
             }
@@ -264,6 +354,25 @@ function HomePage() {
                             {
                                 activeTab === "contestants" && (
                                     <div className="mb-4">
+                                        <div className="action-button-group">
+                                            <button
+                                                onClick={handleShuffleEntries}
+                                                disabled={options.length <= 1}
+                                                className="action-button flex items-center gap-1"
+                                            >
+                                                <Image src={shuffleIcon} alt="shuffle icon" />
+                                                Shuffle
+                                            </button>
+                                            <button
+                                                onClick={handleSortEntries}
+                                                disabled={options.length <= 1}
+                                                className="action-button flex items-center gap-1"
+                                            >
+                                                <Image src={sortIcon} alt="sort icon"/>
+                                                Sort
+
+                                            </button>
+                                        </div>
                                         <label htmlFor="options-textarea" className="block text-sm font-medium text-gray-700 mb-1">
                                             Enter a list of names (one per line):
                                         </label>
@@ -274,8 +383,29 @@ function HomePage() {
                                             rows="8"
                                             className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus-ring-yellow-500"
                                             placeholder="Enter a contestant name per line..."
-
                                         />
+                                    </div>
+                                )
+                            }
+                            {
+                                activeTab === "order" && (
+                                    <div>
+                                        <h3 className="text-xl font-bold text-center mb-2">Order</h3>
+                                        <ul className="winners-list">
+                                            {pastOrders.map((order) => (
+                                                <li key={order.number} className="order-entry">
+                                                    <span>#{order.number} </span>
+                                                    <span className="font-semibold">{order.name}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        <button
+                                            onClick={handleDownloadOrders}
+                                            className="download-button"
+                                            disabled={pastOrders.length===0}
+                                        >
+                                            Download
+                                        </button>
                                     </div>
                                 )
                             }
