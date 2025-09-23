@@ -41,7 +41,9 @@ const eslintConfig = [
     plugins: {
       react: reactPlugin,
       prettier: prettier,
-      '@next/next': nextPlugin,
+      "@next/next": nextPlugin,
+      "@typescript-eslint": typescriptPlugin,
+      "react-hooks": hooksPlugin,
     },
     rules: {
       ...reactPlugin.configs["jsx-runtime"].rules,
