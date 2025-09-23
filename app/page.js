@@ -19,23 +19,6 @@ function HomePage() {
 
   const TITLE = "Sorting Hat";
 
-  const SEGMENT_COLORS = [
-    "#FF6B6B",
-    "#FFD166",
-    "#CCCCFF",
-    "#06D6A0",
-    "#118AB2",
-    "#073B4C",
-    "#A8DADC",
-    "#F4A261",
-    "#E76F51",
-    "#2A9D8F",
-    "#264653",
-    "#F4F1DE",
-    "#E07A5F",
-    "#20B2AA",
-  ];
-
   // Effect to parse textarea value into options
   useEffect(() => {
     const names = textAreaValue
@@ -46,6 +29,23 @@ function HomePage() {
   }, [textAreaValue]);
 
   useEffect(() => {
+    const SEGMENT_COLORS = [
+      "#FF6B6B",
+      "#FFD166",
+      "#CCCCFF",
+      "#06D6A0",
+      "#118AB2",
+      "#073B4C",
+      "#A8DADC",
+      "#F4A261",
+      "#E76F51",
+      "#2A9D8F",
+      "#264653",
+      "#F4F1DE",
+      "#E07A5F",
+      "#20B2AA",
+    ];
+
     if (options.length > 0) {
       const degreePerOption = 360 / options.length;
 
