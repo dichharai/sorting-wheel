@@ -3,12 +3,14 @@
 A spinner to pick contestant order for [San Francisco Toastmasters club](https://www.toastmasters.org/Find-a-Club/00001771-san-francisco-toastmasters)'s bi-annual club contest.
 
 ## For Developer
-The application is made using `Next.js`, a `React` framework. 
+
+The application is made using `Next.js`, a `React` framework.
 
 **Development Setup**
 
 Install `npm` using Node version manager like [`nvm`](https://github.com/nvm-sh/nvm).
-Once, `npm` is installed, install required packages: 
+Once, `npm` is installed, install required packages:
+
 ```
 npm install react@latest react-dom@latest next@latest
 npm install tailwindcss @tailwindcss/postcss postcss
