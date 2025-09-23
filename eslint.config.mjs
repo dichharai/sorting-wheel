@@ -32,29 +32,25 @@ const eslintConfig = [
       parser: typescriptParser,
       parserOptions: {
         ecmaFeatures: {
-          ecmaFeatures: {
-            jsx: true,
-          },
+          jsx: true,
+        },
           ecmaVersion: "latest",
           sourceType: "module",
-        },
       },
-
-      plugins: {
-        react: reactPlugin,
-        prettier: prettier,
-        '@next/next': nextPlugin,
-      },
-      rules: {
-        ...reactPlugin.configs["jsx-runtime"].rules,
-        ...nextPlugin.configs.recommended.rules,
-        ...hooksPlugin.configs.recommended.rules,
-        ...nextPlugin.configs["core-web-vitals"].rules,
-        ...typescriptPlugin.configs.recommended.rules,
-        'prettier/prettier': 'error',
-      }
-      
     },
+    plugins: {
+      react: reactPlugin,
+      prettier: prettier,
+      '@next/next': nextPlugin,
+    },
+    rules: {
+      ...reactPlugin.configs["jsx-runtime"].rules,
+      ...nextPlugin.configs.recommended.rules,
+      ...hooksPlugin.configs.recommended.rules,
+      ...nextPlugin.configs["core-web-vitals"].rules,
+      ...typescriptPlugin.configs.recommended.rules,
+      'prettier/prettier': 'error',
+    }
   },
   
 

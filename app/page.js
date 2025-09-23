@@ -60,7 +60,6 @@ function HomePage() {
 
       conicGradientString = conicGradientString.slice(0, -2) + ")";
       setWheelBackground(conicGradientString);
-      // console.log(`conicGradientString: ${conicGradientString}`);
     } else {
       setWheelBackground(
         "conic-gradient(from 0deg, #A8DADC 0deg, #A8DADC 360deg",
