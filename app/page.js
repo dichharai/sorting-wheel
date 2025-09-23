@@ -9,15 +9,15 @@ function HomePage() {
     "Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nSteve\nDiane\nRumilung\nMadhavi\nAli\nYuanhong\nMatthew\nRebecca\nMitch\n",
   );
   const [options, setOptions] = useState([]);
-  const [title, setTitle] = useState("Sorting Hat");
   const [wheelBackground, setWheelBackground] = useState("");
   const [transform, setTransform] = useState("rotate(0deg)");
   const [spinning, setSpinning] = useState(false);
   const [activeTab, setActiveTab] = useState("contestants");
   const [pastOrders, setPastOrders] = useState([]);
   const [orderCount, setOrderCount] = useState(0);
-  const [orderIndex, setOrderIndex] = useState(null);
   const spinCount = useRef(0);
+
+  const TITLE = "Sorting Hat";
 
   const SEGMENT_COLORS = [
     "#FF6B6B",
@@ -73,7 +73,6 @@ function HomePage() {
     }
 
     setSpinning(true);
-    setOrderIndex(null);
 
     // Reset transform to ensure the animation is triggered every time
     setTransform("rotate(0deg)");
@@ -90,7 +89,6 @@ function HomePage() {
 
     setTimeout(() => {
       setSpinning(false);
-      setOrderIndex(randomIndex);
       const contestantName = options[randomIndex];
       setOrderCount((orderCount) => orderCount + 1);
       setPastOrders((prevOrders) => [
@@ -143,7 +141,6 @@ function HomePage() {
     const csvContent =
       header + pastOrders.map((o) => `${o.number},"${o.name}"`).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    console.log(`orders: ${csvContent}`);
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -322,7 +319,7 @@ function HomePage() {
                 `}
       </style>
       <h1 className="text-4xl font-bold mb-6 text-center text-yellow-500">
-        {title}
+        {TITLE}
       </h1>
       <div className="flex flex-col lg:flex-row lg:items-center justify-center w-full gap-8">
         <div className="flex flex-col items-center w-full lg:w-3/4">
