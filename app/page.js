@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
-import sortIcon from "../public/images/sort-alpha.svg";
+import sortIcon from "../public/images/sort.svg";
 import React, { useState, useRef, useEffect } from "react";
 
 function HomePage() {
