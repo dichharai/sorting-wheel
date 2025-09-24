@@ -184,7 +184,7 @@ function HomePage() {
       const duration = 2 * 1000;
       const end = Date.now() + duration;
 
-      (function frame() {
+      const frame = () => {
         confettiRef.current({
           particleCount: 3,
           angle: 50,
@@ -192,11 +192,11 @@ function HomePage() {
           colors: SEGMENT_COLORS,
           startVelocity: 70,
         });
-
         if (Date.now() < end) {
           requestAnimationFrame(frame);
         }
-      })();
+      };
+      frame();
     }
   };
 
