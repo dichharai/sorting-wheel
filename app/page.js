@@ -9,6 +9,7 @@ function HomePage() {
   const [textAreaValue, setTextAreaValue] = useState(
     "Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nSteve\nDiane\nRumilung\nMadhavi\nAli\nYuanhong\nMatthew\nRebecca\nMitch\n",
   );
+
   const [options, setOptions] = useState([]);
   const [wheelBackground, setWheelBackground] = useState("");
   const [transform, setTransform] = useState("rotate(0deg)");
@@ -24,6 +25,7 @@ function HomePage() {
   const confettiRef = useRef(null);
 
   const TITLE = "Sorting Hat";
+
   const SEGMENT_COLORS = [
     "#FF6B6B",
     "#FFD166",
@@ -35,10 +37,10 @@ function HomePage() {
     "#F4A261",
     "#E76F51",
     "#2A9D8F",
-    "#264653",
     "#F4F1DE",
     "#E07A5F",
     "#20B2AA",
+    "#B95E82",
   ];
 
   // Effect to parse textarea value into options
@@ -58,7 +60,14 @@ function HomePage() {
       let conicGradientString = "conic-gradient(from 0deg, ";
       let currentDegree = 0;
       options.forEach((_, index) => {
-        const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+        let color;
+        // prevent last and first item in options be the same color
+        if (index === options.length - 1 && SEGMENT_COLORS.length > 1) {
+          color = SEGMENT_COLORS[1];
+        } else {
+          color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+        }
+
         conicGradientString += `${color} ${currentDegree}deg, ${color} ${currentDegree + degreePerOption}deg, `;
         currentDegree += degreePerOption;
       });
