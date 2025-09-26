@@ -159,12 +159,16 @@ function HomePage() {
     setTextAreaValue(shuffledOptions.join("\n"));
   };
 
+  const sortEntries = () => {
+    return [...options].sort((a, b) => a.localeCompare(b));
+  };
+
   const handleSortEntries = () => {
     let sortedOptions;
     if (!ascSort) {
-      sortedOptions = [...options].sort((a, b) => a.localeCompare(b));
+      sortedOptions = sortEntries();
     } else {
-      sortedOptions = [...options].reverse();
+      sortedOptions = sortEntries().reverse();
     }
     setTextAreaValue(sortedOptions.join("\n"));
     setAscSort(!ascSort);
