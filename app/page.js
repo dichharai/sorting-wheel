@@ -1,13 +1,15 @@
 "use client";
+
 import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
-import sortIcon from "../public/images/sort-alpha-down.svg";
+import sortIcon from "../public/images/sort.svg";
 import React, { useState, useRef, useEffect } from "react";
 
 function HomePage() {
   const [textAreaValue, setTextAreaValue] = useState(
     "Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nSteve\nDiane\nRumilung\nMadhavi\nAli\nYuanhong\nMatthew\nRebecca\nMitch\n",
   );
+
   const [options, setOptions] = useState([]);
   const [wheelBackground, setWheelBackground] = useState("");
   const [transform, setTransform] = useState("rotate(0deg)");
@@ -15,9 +17,31 @@ function HomePage() {
   const [activeTab, setActiveTab] = useState("contestants");
   const [pastOrders, setPastOrders] = useState([]);
   const [orderCount, setOrderCount] = useState(0);
+  const [ascSort, setAscSort] = useState(false);
+  const [showPickedContestantBox, setShowPickedContestantBox] = useState(false);
+  const [pickedContestant, setPickedContestant] = useState(null);
+
   const spinCount = useRef(0);
+  const confettiRef = useRef(null);
 
   const TITLE = "Sorting Hat";
+
+  const SEGMENT_COLORS = [
+    "#FF6B6B",
+    "#FFD166",
+    "#CCCCFF",
+    "#06D6A0",
+    "#118AB2",
+    "#073B4C",
+    "#A8DADC",
+    "#F4A261",
+    "#E76F51",
+    "#2A9D8F",
+    "#F4F1DE",
+    "#E07A5F",
+    "#20B2AA",
+    "#B95E82",
+  ];
 
   // Effect to parse textarea value into options
   useEffect(() => {
@@ -29,23 +53,6 @@ function HomePage() {
   }, [textAreaValue]);
 
   useEffect(() => {
-    const SEGMENT_COLORS = [
-      "#FF6B6B",
-      "#FFD166",
-      "#CCCCFF",
-      "#06D6A0",
-      "#118AB2",
-      "#073B4C",
-      "#A8DADC",
-      "#F4A261",
-      "#E76F51",
-      "#2A9D8F",
-      "#264653",
-      "#F4F1DE",
-      "#E07A5F",
-      "#20B2AA",
-    ];
-
     if (options.length > 0) {
       const degreePerOption = 360 / options.length;
 
@@ -53,7 +60,14 @@ function HomePage() {
       let conicGradientString = "conic-gradient(from 0deg, ";
       let currentDegree = 0;
       options.forEach((_, index) => {
-        const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+        let color;
+        // prevent last and first item in options be the same color
+        if (index === options.length - 1 && SEGMENT_COLORS.length > 1) {
+          color = SEGMENT_COLORS[1];
+        } else {
+          color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+        }
+
         conicGradientString += `${color} ${currentDegree}deg, ${color} ${currentDegree + degreePerOption}deg, `;
         currentDegree += degreePerOption;
       });
@@ -67,12 +81,21 @@ function HomePage() {
     }
   }, [options]);
 
+  // Dynamically import the canvas-confetti library
+  useEffect(() => {
+    import("canvas-confetti").then((confetti) => {
+      confettiRef.current = confetti.default;
+    });
+  }, []);
+
   const handleSpin = async () => {
     if (spinning || options.length === 0) {
       return;
     }
 
     setSpinning(true);
+    setShowPickedContestantBox(false);
+    setPickedContestant(null);
 
     // Reset transform to ensure the animation is triggered every time
     setTransform("rotate(0deg)");
@@ -91,16 +114,24 @@ function HomePage() {
       setSpinning(false);
       const contestantName = options[randomIndex];
       setOrderCount((orderCount) => orderCount + 1);
+      setPickedContestant(contestantName);
       setPastOrders((prevOrders) => [
         ...prevOrders,
         { number: orderCount + 1, name: contestantName },
       ]);
+
+      if (confettiRef.current) {
+        fireConfetti();
+      }
+
+      setShowPickedContestantBox(true);
 
       setTimeout(() => {
         const remainingOptions = options.filter(
           (_, index) => index !== randomIndex,
         );
         setTextAreaValue(remainingOptions.join("\n"));
+        setShowPickedContestantBox(false);
       }, 3000);
     }, 4100); // 4.1 seconds to account for the 4s transition
   };
@@ -128,9 +159,19 @@ function HomePage() {
     setTextAreaValue(shuffledOptions.join("\n"));
   };
 
+  const sortEntries = () => {
+    return [...options].sort((a, b) => a.localeCompare(b));
+  };
+
   const handleSortEntries = () => {
-    const sortedOptions = [...options].sort((a, b) => a.localeCompare(b));
+    let sortedOptions;
+    if (!ascSort) {
+      sortedOptions = sortEntries();
+    } else {
+      sortedOptions = sortEntries().reverse();
+    }
     setTextAreaValue(sortedOptions.join("\n"));
+    setAscSort(!ascSort);
   };
 
   const handleDownloadOrders = () => {
@@ -151,173 +192,29 @@ function HomePage() {
     URL.revokeObjectURL(url);
   };
 
+  const fireConfetti = () => {
+    if (confettiRef.current) {
+      const duration = 2 * 1000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confettiRef.current({
+          particleCount: 3,
+          angle: 50,
+          origin: { x: 0, y: 1 },
+          colors: SEGMENT_COLORS,
+          startVelocity: 70,
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen app-container">
-      <style>
-        {`.app-container {
-                    background-color: #f1f5f9;
-                    color: # #1a202c;
-                    padding: 1rem;
-                    font-family: sans-serif;
-                    gap: 2rem;
-                    width: 100%;
-                }
-                .wheel-container {
-                    position: relative;
-                    width: 28rem;
-                    height: 28rem;
-                    cursor: pointer;
-                    margin: 2rem;
-                }
-                .wheel {
-                    position: relative;
-                    width: 100%;
-                    height: 100%;
-                    border-radius: 9999px;
-                    overflow: hidden;
-                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-                    transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
-                }
-                .option-text {
-                    position: absolute;
-                    left: 50%;
-                    top: 50%;
-                    transform-origin: 0 0;
-                    color: white;
-                    font-weight: bold;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-                }
-                .center-circle {
-                    position: absolute;
-                    width: 8rem;
-                    height: 8rem;
-                    background-color: #ffffff;
-                    border-radius: 9999px;
-                    inset: 0;
-                    margin: auto;
-                    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
-                    pointer-events: none;
-                }
-                .pointer {
-                    position: absolute;
-                    top: 50%;
-                    right: -20px;
-                    transform: translateY(-50%);
-                    width: 0;
-                    height: 0;
-                    border-top: 15px solid transparent;
-                    border-bottom: 15px solid transparent;
-                    border-right: 30px solid #f59e0b;
-                    z-index: 10;
-                }
-                .spin-button {
-                    background-color: #f59e0b;
-                    color: #1f2937;
-                    font-weight: 700;
-                    padding: 1rem 2.5rem;
-                    border-radius: 1rem;
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                    transition: background-color 0.2s;
-                    font-size: 1.25rem;
-                }
-
-                .spin-button:hover {
-                    background-color: #fcd34d;
-                }
-
-                .spin-button:disabled {
-                    background-color: #4b5563;
-                    cursor: not-allowed;
-                }
-
-                .tab-panel {
-                    background-color: #ffffff;
-                    padding: 1.5rem;
-                    border-radius: 1rem;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-                    width: 100%;
-                    max-width: 24rem;
-                }
-
-                .tab-buttons {
-                    display: flex;
-                    justify-content: space-around;
-                    margin-bottom: 0.5rem;
-                    border-bottom: 2px solid #e5e7eb;
-                }
-
-                .tab-button {
-                    flex-grow: 1;
-                    padding: 0.75rem;
-                    text-align: center;
-                    font-weight: 600;
-                    color: #6b7280;
-                    cursor: pointer;
-                    transition: color 0.2s, border-bottom-color 0.2s;
-                    border-bottom: 2px solid transparent;
-                }
-
-                .tab-button.active {
-                    color: #f59e0b;
-                    border-bottom-color: #f59e0b;
-                }
-
-                .tab-button:hover {
-                    color: #f59e0b;
-                }
-
-                .action-button-group {
-                    display: flex;
-                    justify-content: flex-start;
-                    gap: 0.75rem;
-                    margin-bottom: 0.25rem;
-                    margin-top: 0.25rem;
-                }
-                .action-button {
-                    background-color: #e5e7eb;
-                    color: #1f2937;
-                    font-weight: 700;
-                    padding: 0.5rem 0.75rem;
-                    border-radius: 0.75rem;
-                    transition: background-color 0.2s;
-                    font-size: 0.875rem; /* text-sm */
-                }
-                .action-button:hover {
-                    background-color: #d1d5db;
-                }
-                .action-button:disabled {
-                    background-color: #f3f4f6;
-                    color: #d1d5db;
-                    cursor: not-allowed;
-                }
-                .order-entry {
-                    background-color: #e5e7eb;
-                    padding: 0.5rem;
-                    border-radius: 0.5rem;
-                    margin-bottom: 0.5rem;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-                .download-button {
-                    background-color: #118AB2;
-                    color: #ffffff;
-                    font-weight: 700;
-                    padding: 0.75rem 1.5rem;
-                    border-radius: 0.75rem;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    transition: background-color 0.2s;
-                    width: 100%;
-                }
-                .download-button:hover {
-                    background-color: #06D6A0;
-                }
-                
-                `}
-      </style>
       <h1 className="text-4xl font-bold mb-6 text-center text-yellow-500">
         {TITLE}
       </h1>
@@ -352,7 +249,7 @@ function HomePage() {
           </div>
         </div>
         <div className="flex flex-col items-center lg:items-start w-full lg:w-1/4 mt-8 lg:mt-0">
-          <div className="tab-panel">
+          <div className="tab-panel max-h-105 min-h-105 flex flex-col">
             <div className="tab-buttons">
               <button
                 className={`tab-button ${activeTab === "contestants" ? "active" : ""}`}
@@ -373,9 +270,9 @@ function HomePage() {
                 Order
               </button>
             </div>
-            <div className="tab-content">
+            <div className="tab-content flex flex-col overflow-y-auto px-1">
               {activeTab === "contestants" && (
-                <div className="mb-4">
+                <div className="mb-4 overflow-y-auto">
                   <div className="action-button-group">
                     <button
                       onClick={handleShuffleEntries}
@@ -411,29 +308,48 @@ function HomePage() {
                 </div>
               )}
               {activeTab === "order" && (
-                <div>
-                  <h3 className="text-xl font-bold text-center mb-2">Order</h3>
-                  <ul className="winners-list">
-                    {pastOrders.map((order) => (
-                      <li key={order.number} className="order-entry">
-                        <span>#{order.number} </span>
-                        <span className="font-semibold">{order.name}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <>
+                  <h3 className="text-xl font-bold text-center mb-2 text-gray-800">
+                    Order
+                  </h3>
+                  {pastOrders.length > 0 ? (
+                    <div className="flex-grow overflow-y-auto mb-4">
+                      <ul className="orders-list">
+                        {pastOrders.map((order) => (
+                          <li key={order.number} className="order-entry">
+                            <span>#{order.number} </span>
+                            <span className="font-semibold">{order.name}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className="text-center text-gray-500 my-4 flex-grow flex items-center justify-center">
+                      <p>No past contestant orders to display.</p>
+                    </div>
+                  )}
+
                   <button
                     onClick={handleDownloadOrders}
-                    className="download-button"
+                    className="w-full download-button py-2 px-4 rounded-lg bg-yellow-500 text-white font-semibold hove:bg-yellow-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed "
                     disabled={pastOrders.length === 0}
                   >
                     Download
                   </button>
-                </div>
+                </>
               )}
             </div>
           </div>
         </div>
       </div>
+      {showPickedContestantBox && (
+        <div className="picked-contestant-modal-overlay">
+          <div className="picked-contestant-modal">
+            <h2>#{orderCount}</h2>
+            <p>{pickedContestant}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

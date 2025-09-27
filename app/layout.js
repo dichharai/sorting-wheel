@@ -1,4 +1,5 @@
-import "./global.css";
+import "./css/global.css";
+import "./css/page.css";
 
 export const metadata = {
   title: "Sorting Hat",
