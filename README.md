@@ -38,3 +38,7 @@ Start your development Node.js server:
 **Command to run formatter**
 
 `npm run format`
+
+### Credits
+
+- Free icon [wheel](https://www.flaticon.com/free-icons/wheel)
