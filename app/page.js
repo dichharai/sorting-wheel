@@ -28,24 +28,6 @@ function HomePage() {
   const TITLE = "Sorting Wheel";
   const MAX_CONTESTANT_ENTRY = 15;
 
-  const SEGMENT_COLORS = [
-    "#6600FF", // electric indigo
-    "#228B22", // forest green
-    "#DA3287", // deep cerise
-    "#0F52BA", // sapphire
-    "#FF8C00", // marigold
-    "#0038A8", // royal blue
-    "#FF5E00", // bright orange
-    "#FF69B4", // hot pink
-    "#FF2400", // scarlet red
-    "#40E0D0", // turquoise
-    "#E0115F", // ruby red
-    "#CCFF00", // neon green
-    "#E25822", // flame
-    "#FFD700", // gold
-    "#008080", // teal
-  ];
-
   // Effect to parse textarea value into options
   useEffect(() => {
     const names = textAreaValue
@@ -56,6 +38,23 @@ function HomePage() {
   }, [textAreaValue]);
 
   useEffect(() => {
+    const SEGMENT_COLORS = [
+      "#6600FF", // electric indigo
+      "#228B22", // forest green
+      "#DA3287", // deep cerise
+      "#0F52BA", // sapphire
+      "#FF8C00", // marigold
+      "#0038A8", // royal blue
+      "#FF5E00", // bright orange
+      "#FF69B4", // hot pink
+      "#FF2400", // scarlet red
+      "#40E0D0", // turquoise
+      "#E0115F", // ruby red
+      "#CCFF00", // neon green
+      "#E25822", // flame
+      "#FFD700", // gold
+      "#008080", // teal
+    ];
     if (options.length > 0) {
       const degreePerOption = 360 / options.length;
 
