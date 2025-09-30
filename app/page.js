@@ -210,7 +210,7 @@ function HomePage() {
 
       const frame = () => {
         confettiRef.current({
-          particleCount: 3,
+          particleCount: 5,
           angle: 50,
           origin: { x: 0, y: 1 },
           startVelocity: 70,
