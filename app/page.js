@@ -25,7 +25,7 @@ function HomePage() {
   const spinCount = useRef(0);
   const confettiRef = useRef(null);
 
-  const TITLE = "Sorting Hat";
+  const TITLE = "Sorting Wheel";
   const MAX_CONTESTANT_ENTRY = 15;
 
   const SEGMENT_COLORS = [
