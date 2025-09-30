@@ -3,6 +3,7 @@
 import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
+import deleteIcon from "../public/images/delete.svg";
 import React, { useState, useRef, useEffect } from "react";
 
 function HomePage() {
@@ -174,6 +175,20 @@ function HomePage() {
     setAscSort(!ascSort);
   };
 
+  const handleDeleteEntries = () => {
+    if (textAreaValue.length < 1) {
+      return;
+    }
+    setTextAreaValue("");
+  };
+
+  const handleDeletePastOrders = () => {
+    if (pastOrders.length < 1) {
+      return;
+    }
+    setPastOrders([]);
+  };
+
   const handleDownloadOrders = () => {
     if (pastOrders.length === 0) {
       return;
@@ -290,6 +305,14 @@ function HomePage() {
                       <Image src={sortIcon} alt="sort icon" />
                       Sort
                     </button>
+                    <button
+                      onClick={handleDeleteEntries}
+                      disabled={options.length < 1}
+                      className="action-button flex items-center gap-1"
+                    >
+                      <Image src={deleteIcon} alt="delete icon" />
+                      Delete
+                    </button>
                   </div>
                   <label
                     htmlFor="options-textarea"
@@ -309,9 +332,17 @@ function HomePage() {
               )}
               {activeTab === "order" && (
                 <>
-                  <h3 className="text-xl font-bold text-center mb-2 text-gray-800">
-                    Order
-                  </h3>
+                  <div className="action-button-group">
+                    <button
+                      onClick={handleDeletePastOrders}
+                      disabled={pastOrders.length < 1}
+                      className="action-button flex items-center gap-1"
+                    >
+                      <Image src={deleteIcon} alt="delete icon" />
+                      Delete
+                    </button>
+                  </div>
+                  <hr className="border-t border-gray-300" />
                   {pastOrders.length > 0 ? (
                     <div className="flex-grow overflow-y-auto mb-4">
                       <ul className="orders-list">
