@@ -26,6 +26,7 @@ function HomePage() {
   const confettiRef = useRef(null);
 
   const TITLE = "Sorting Hat";
+  const MAX_CONTESTANT_ENTRY = 15;
 
   const SEGMENT_COLORS = [
     "#6600FF", // electric indigo
@@ -312,12 +313,27 @@ function HomePage() {
                     htmlFor="options-textarea"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Enter a list of names (one per line):
+                    Enter a list of names (one per line, max{" "}
+                    {MAX_CONTESTANT_ENTRY}):
                   </label>
                   <textarea
                     id="options-textarea"
                     value={textAreaValue}
-                    onChange={(e) => setTextAreaValue(e.target.value)}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      const values = newValue.split("\n");
+                      console.log(
+                        `values: ${values}. length: ${values.length}`,
+                      );
+                      if (values.length > MAX_CONTESTANT_ENTRY) {
+                        const truncatedValue = values
+                          .slice(0, MAX_CONTESTANT_ENTRY)
+                          .join("\n");
+                        setTextAreaValue(truncatedValue);
+                      } else {
+                        setTextAreaValue(newValue);
+                      }
+                    }}
                     rows="8"
                     className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus-ring-yellow-500"
                     placeholder="Enter a contestant name per line..."
