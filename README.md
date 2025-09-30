@@ -2,7 +2,7 @@
 
 A spinner to pick contestant order for [San Francisco Toastmasters club](https://www.toastmasters.org/Find-a-Club/00001771-san-francisco-toastmasters)'s bi-annual club contest.
 
-You can access the **Sorting Wheel** spinner [here](https://sorting-hat-dun.vercel.app/).
+You can access the **Sorting Wheel** spinner [here](https://sorting-wheel.vercel.app/).
 
 ## For Developer
 
