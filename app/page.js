@@ -28,20 +28,21 @@ function HomePage() {
   const TITLE = "Sorting Hat";
 
   const SEGMENT_COLORS = [
-    "#FF6B6B",
-    "#FFD166",
-    "#CCCCFF",
-    "#06D6A0",
-    "#118AB2",
-    "#073B4C",
-    "#A8DADC",
-    "#F4A261",
-    "#E76F51",
-    "#2A9D8F",
-    "#F4F1DE",
-    "#E07A5F",
-    "#20B2AA",
-    "#B95E82",
+    "#6600FF", // electric indigo
+    "#228B22", // forest green
+    "#DA3287", // deep cerise
+    "#0F52BA", // sapphire
+    "#FF8C00", // marigold
+    "#0038A8", // royal blue
+    "#FF5E00", // bright orange
+    "#FF69B4", // hot pink
+    "#FF2400", // scarlet red
+    "#40E0D0", // turquoise
+    "#E0115F", // ruby red
+    "#CCFF00", // neon green
+    "#E25822", // flame
+    "#FFD700", // gold
+    "#008080", // teal
   ];
 
   // Effect to parse textarea value into options
@@ -61,13 +62,7 @@ function HomePage() {
       let conicGradientString = "conic-gradient(from 0deg, ";
       let currentDegree = 0;
       options.forEach((_, index) => {
-        let color;
-        // prevent last and first item in options be the same color
-        if (index === options.length - 1 && SEGMENT_COLORS.length > 1) {
-          color = SEGMENT_COLORS[1];
-        } else {
-          color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
-        }
+        const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
 
         conicGradientString += `${color} ${currentDegree}deg, ${color} ${currentDegree + degreePerOption}deg, `;
         currentDegree += degreePerOption;
