@@ -99,7 +99,7 @@ function HomePage() {
     const randomIndex = Math.floor(Math.random() * options.length);
     const degreePerOption = 360 / options.length;
 
-    spinCount.current += 10; // Increment spin count for a fresh rotation
+    spinCount.current += 4; // Increment spin count for a fresh rotation
     const segmentCenterDegree =
       randomIndex * degreePerOption + degreePerOption / 2;
     const finalDegree = 360 * spinCount.current + (90 - segmentCenterDegree);
@@ -128,8 +128,8 @@ function HomePage() {
         );
         setTextAreaValue(remainingOptions.join("\n"));
         setShowPickedContestantBox(false);
-      }, 3000);
-    }, 4100); // 4.1 seconds to account for the 4s transition
+      }, 4000);
+    }, 6100); // 6.1 seconds to account for the 6s transition
   };
 
   const getTextStyles = (index) => {
@@ -212,7 +212,6 @@ function HomePage() {
           particleCount: 3,
           angle: 50,
           origin: { x: 0, y: 1 },
-          colors: SEGMENT_COLORS,
           startVelocity: 70,
         });
         if (Date.now() < end) {
