@@ -8,7 +8,7 @@ import React, { useState, useRef, useEffect } from "react";
 
 function HomePage() {
   const [textAreaValue, setTextAreaValue] = useState(
-    "Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nSteve\nDiane\nRumilung\nMadhavi\nAli\nYuanhong\nMatthew\nRebecca\nMitch\n",
+    "Terry\nNancy\nDennis\nDerek\nRumilung\n",
   );
 
   const [options, setOptions] = useState([]);
