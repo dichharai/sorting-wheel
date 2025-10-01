@@ -3,11 +3,12 @@
 import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
+import deleteIcon from "../public/images/delete.svg";
 import React, { useState, useRef, useEffect } from "react";
 
 function HomePage() {
   const [textAreaValue, setTextAreaValue] = useState(
-    "Terry\nNancy\nDennis\nDerek\nJohn\nAnton\nSteve\nDiane\nRumilung\nMadhavi\nAli\nYuanhong\nMatthew\nRebecca\nMitch\n",
+    "Terry\nNancy\nDennis\nDerek\nRumilung\n",
   );
 
   const [options, setOptions] = useState([]);
@@ -24,23 +25,25 @@ function HomePage() {
   const spinCount = useRef(0);
   const confettiRef = useRef(null);
 
-  const TITLE = "Sorting Hat";
+  const TITLE = "Sorting Wheel";
+  const MAX_CONTESTANT_ENTRY = 15;
 
   const SEGMENT_COLORS = [
-    "#FF6B6B",
-    "#FFD166",
-    "#CCCCFF",
-    "#06D6A0",
-    "#118AB2",
-    "#073B4C",
-    "#A8DADC",
-    "#F4A261",
-    "#E76F51",
-    "#2A9D8F",
-    "#F4F1DE",
-    "#E07A5F",
-    "#20B2AA",
-    "#B95E82",
+    "#6600FF", // electric indigo
+    "#228B22", // forest green
+    "#DA3287", // deep cerise
+    "#0F52BA", // sapphire
+    "#FF8C00", // marigold
+    "#0038A8", // royal blue
+    "#FF5E00", // bright orange
+    "#FF69B4", // hot pink
+    "#FF2400", // scarlet red
+    "#40E0D0", // turquoise
+    "#E0115F", // ruby red
+    "#CCFF00", // neon green
+    "#E25822", // flame
+    "#FFD700", // gold
+    "#008080", // teal
   ];
 
   // Effect to parse textarea value into options
@@ -60,13 +63,7 @@ function HomePage() {
       let conicGradientString = "conic-gradient(from 0deg, ";
       let currentDegree = 0;
       options.forEach((_, index) => {
-        let color;
-        // prevent last and first item in options be the same color
-        if (index === options.length - 1 && SEGMENT_COLORS.length > 1) {
-          color = SEGMENT_COLORS[1];
-        } else {
-          color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
-        }
+        const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
 
         conicGradientString += `${color} ${currentDegree}deg, ${color} ${currentDegree + degreePerOption}deg, `;
         currentDegree += degreePerOption;
@@ -103,7 +100,7 @@ function HomePage() {
     const randomIndex = Math.floor(Math.random() * options.length);
     const degreePerOption = 360 / options.length;
 
-    spinCount.current += 10; // Increment spin count for a fresh rotation
+    spinCount.current += 4; // Increment spin count for a fresh rotation
     const segmentCenterDegree =
       randomIndex * degreePerOption + degreePerOption / 2;
     const finalDegree = 360 * spinCount.current + (90 - segmentCenterDegree);
@@ -132,8 +129,8 @@ function HomePage() {
         );
         setTextAreaValue(remainingOptions.join("\n"));
         setShowPickedContestantBox(false);
-      }, 3000);
-    }, 4100); // 4.1 seconds to account for the 4s transition
+      }, 4000);
+    }, 6100); // 6.1 seconds to account for the 6s transition
   };
 
   const getTextStyles = (index) => {
@@ -174,6 +171,20 @@ function HomePage() {
     setAscSort(!ascSort);
   };
 
+  const handleDeleteEntries = () => {
+    if (textAreaValue.length < 1) {
+      return;
+    }
+    setTextAreaValue("");
+  };
+
+  const handleDeletePastOrders = () => {
+    if (pastOrders.length < 1) {
+      return;
+    }
+    setPastOrders([]);
+  };
+
   const handleDownloadOrders = () => {
     if (pastOrders.length === 0) {
       return;
@@ -199,10 +210,9 @@ function HomePage() {
 
       const frame = () => {
         confettiRef.current({
-          particleCount: 3,
+          particleCount: 5,
           angle: 50,
           origin: { x: 0, y: 1 },
-          colors: SEGMENT_COLORS,
           startVelocity: 70,
         });
         if (Date.now() < end) {
@@ -290,17 +300,40 @@ function HomePage() {
                       <Image src={sortIcon} alt="sort icon" />
                       Sort
                     </button>
+                    <button
+                      onClick={handleDeleteEntries}
+                      disabled={options.length < 1}
+                      className="action-button flex items-center gap-1"
+                    >
+                      <Image src={deleteIcon} alt="delete icon" />
+                      Delete
+                    </button>
                   </div>
                   <label
                     htmlFor="options-textarea"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Enter a list of names (one per line):
+                    Enter a list of names (one per line, max{" "}
+                    {MAX_CONTESTANT_ENTRY}):
                   </label>
                   <textarea
                     id="options-textarea"
                     value={textAreaValue}
-                    onChange={(e) => setTextAreaValue(e.target.value)}
+                    onChange={(e) => {
+                      const newValue = e.target.value;
+                      const values = newValue.split("\n");
+                      console.log(
+                        `values: ${values}. length: ${values.length}`,
+                      );
+                      if (values.length > MAX_CONTESTANT_ENTRY) {
+                        const truncatedValue = values
+                          .slice(0, MAX_CONTESTANT_ENTRY)
+                          .join("\n");
+                        setTextAreaValue(truncatedValue);
+                      } else {
+                        setTextAreaValue(newValue);
+                      }
+                    }}
                     rows="8"
                     className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus-ring-yellow-500"
                     placeholder="Enter a contestant name per line..."
@@ -309,9 +342,17 @@ function HomePage() {
               )}
               {activeTab === "order" && (
                 <>
-                  <h3 className="text-xl font-bold text-center mb-2 text-gray-800">
-                    Order
-                  </h3>
+                  <div className="action-button-group">
+                    <button
+                      onClick={handleDeletePastOrders}
+                      disabled={pastOrders.length < 1}
+                      className="action-button flex items-center gap-1"
+                    >
+                      <Image src={deleteIcon} alt="delete icon" />
+                      Delete
+                    </button>
+                  </div>
+                  <hr className="border-t border-gray-300" />
                   {pastOrders.length > 0 ? (
                     <div className="flex-grow overflow-y-auto mb-4">
                       <ul className="orders-list">

@@ -1,5 +1,5 @@
 {
-  "name": "sorting-hat",
+  "name": "sorting-wheel",
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
