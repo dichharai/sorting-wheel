@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import * as Tone from "tone";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
 import deleteIcon from "../public/images/delete.svg";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 
 function HomePage() {
   const [textAreaValue, setTextAreaValue] = useState(
@@ -84,6 +85,49 @@ function HomePage() {
     });
   }, []);
 
+  const startAudioContext = useCallback(async () => {
+    if (!Tone) {
+      console.log("tone js package is not loaded");
+      return false;
+    }
+    console.log(`context state: ${Tone.getContext().state}`);
+    if (Tone.getContext().state !== "running") {
+      try {
+        await Tone.start();
+        return true;
+      } catch (error) {
+        console.log(`Failed to start Tonel.js Audio Context. error: ${error}`);
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }, []);
+
+  const playApplause = useCallback(() => {
+    if (!Tone) {
+      console.log("no tone js library");
+      return;
+    }
+    Tone.getContext()
+      .resume()
+      .then(() => {
+        // 1. Create a synth (PolySynth for a fuller sound)
+        const synth = new Tone.PolySynth(Tone.AMSynth, {
+          oscillator: { type: "triangle" },
+        }).toDestination();
+
+        //2. Play C Major chord for 1 second
+        const now = Tone.now();
+        synth.triggerAttackRelease(["C4", "E4", "G4"], "1n", now);
+
+        // Schedule the synth to be cleaned up after the note finishes
+        Tone.getTransport().scheduleOnce(() => {
+          synth.dispose(); // Removes the synth from the audio graph
+        }, now + 1.5);
+      });
+  }, []);
+
   const handleSpin = async () => {
     if (spinning || options.length === 0) {
       return;
@@ -106,7 +150,7 @@ function HomePage() {
 
     setTransform(`rotate(${finalDegree}deg)`);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       setSpinning(false);
       const contestantName = options[randomIndex];
       setOrderCount((orderCount) => orderCount + 1);
@@ -118,6 +162,14 @@ function HomePage() {
 
       if (confettiRef.current) {
         fireConfetti();
+      }
+
+      const audioStarted = await startAudioContext();
+      if (audioStarted) {
+        console.log(`audio started: ${Tone.getContext().state}`);
+        playApplause();
+      } else {
+        console.log(`audio has not started: ${Tone.getContext().state}`);
       }
 
       setShowPickedContestantBox(true);
