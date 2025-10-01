@@ -22,7 +22,6 @@ function HomePage() {
   const [ascSort, setAscSort] = useState(false);
   const [showPickedContestantBox, setShowPickedContestantBox] = useState(false);
   const [pickedContestant, setPickedContestant] = useState(null);
-  const [audioContextIsReady, setAudioContextIsReady] = useState(false);
 
   const spinCount = useRef(0);
   const confettiRef = useRef(null);
@@ -95,14 +94,12 @@ function HomePage() {
     if (Tone.getContext().state !== "running") {
       try {
         await Tone.start();
-        setAudioContextIsReady(true);
         return true;
       } catch (error) {
         console.log(`Failed to start Tonel.js Audio Context. error: ${error}`);
         return false;
       }
     } else {
-      setAudioContextIsReady(true);
       return true;
     }
   }, []);
