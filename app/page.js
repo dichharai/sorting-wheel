@@ -91,7 +91,6 @@ function HomePage() {
       console.log("tone js package is not loaded");
       return false;
     }
-    console.log(`context state: ${Tone.getContext().state}`);
     if (Tone.getContext().state !== "running") {
       try {
         await Tone.start();
@@ -155,6 +154,7 @@ function HomePage() {
         // 4. Triggers the note to start immediately and release after 1 half notes (1 second)
         spinningSynth.triggerAttackRelease("C4", "1n", now);
 
+        // 5. Schedule the Stop Event after 3s
         Tone.getTransport().scheduleOnce((time) => {
           spinningLFO.stop(time);
           spinningSynth.dispose();
@@ -222,12 +222,16 @@ function HomePage() {
     setShowPickedContestantBox(false);
     setPickedContestant(null);
 
-    if (selectedSound !== "none" && startAudioContext()) {
+    const audioStarted = await startAudioContext();
+
+    if (selectedSound !== "none" && audioStarted) {
       Tone.getContext()
         .resume()
         .then(() => {
           startSpinningSound(selectedSound);
         });
+    } else {
+      console.log("sound type not selected or audio context not started.");
     }
 
     // Reset transform to ensure the animation is triggered every time
@@ -257,9 +261,7 @@ function HomePage() {
         fireConfetti();
       }
 
-      const audioStarted = await startAudioContext();
       if (audioStarted) {
-        console.log(`audio started: ${Tone.getContext().state}`);
         playApplause();
       } else {
         console.log(`audio has not started: ${Tone.getContext().state}`);
