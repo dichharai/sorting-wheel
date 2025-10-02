@@ -22,6 +22,7 @@ function HomePage() {
   const [ascSort, setAscSort] = useState(false);
   const [showPickedContestantBox, setShowPickedContestantBox] = useState(false);
   const [pickedContestant, setPickedContestant] = useState(null);
+  const [selectedSound, setSelectedSound] = useState("classic");
 
   const spinCount = useRef(0);
   const confettiRef = useRef(null);
@@ -128,6 +129,90 @@ function HomePage() {
       });
   }, []);
 
+  const startSpinningSound = async (soundType) => {
+    if (!Tone) {
+      return;
+    }
+
+    switch (soundType) {
+      case "classic":
+        // 1. Low-frequency oscillator that sweeps rapidly (6Hz, max 10Hz) between 440 Hz (A4) and 880 Hz (A5)
+        const spinningLFO = new Tone.LFO(6, 440, 880).start();
+
+        // 2. Create a Synth with a square wave abd a specific volume envelope
+        const spinningSynth = new Tone.Synth({
+          oscillator: { type: "square" },
+          envelope: { attack: 0.1, decay: 0.2, sustain: 1, release: 0.9 },
+        }).toDestination();
+
+        // 3. Connects the LFO's output (the sweeping frequency) directly to the synth's pitch
+        // This creates a the spinning/siren sound.
+        // The "C4" is ignored here b/c the LFO is overriding the frequency.
+        spinningLFO.connect(spinningSynth.oscillator.frequency);
+
+        const now = Tone.now();
+
+        // 4. Triggers the note to start immediately and release after 1 half notes (1 second)
+        spinningSynth.triggerAttackRelease("C4", "1n", now);
+
+        Tone.getTransport().scheduleOnce((time) => {
+          spinningLFO.stop(time);
+          spinningSynth.dispose();
+          spinningLFO.dispose();
+        }, now + 3);
+        break;
+      case "chime":
+        // 1. Setup a synth
+        const chimeSynth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: "triangle" },
+          envelope: { attack: 0.005, decay: 0.1, sustain: 0.05, release: 0.9 },
+        }).toDestination();
+
+        // 2. Setup looping event
+        const chimeLoop = new Tone.Loop((time) => {
+          chimeSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n", time);
+        }, "4n").start(0);
+
+        // start the Transport (global clock)
+        Tone.getTransport().start();
+
+        // 3. schedule the Stop Event after 3s
+        Tone.getTransport().scheduleOnce((time) => {
+          Tone.getTransport().stop(time);
+          // warning for using schedule time disappears if the dispose is not made explicit
+          chimeSynth.dispose();
+          chimeLoop.dispose();
+        }, 3);
+        break;
+      case "drumroll":
+        // 1. Setup a synth
+        const drumRollSynth = new Tone.NoiseSynth({
+          noise: { type: "white" },
+          envelope: { attack: 0.001, decay: 0.1, sustain: 0.1, release: 0.2 },
+        }).toDestination();
+
+        // 2. Setup looping event
+        const drumLoop = new Tone.Loop((time) => {
+          drumRollSynth.triggerAttackRelease("16n", time);
+        }, "16n").start(0);
+
+        // start the Transport (global clock)
+        Tone.getTransport().start();
+
+        // 3. schedule the Stop Event after 3s
+        Tone.getTransport().scheduleOnce((time) => {
+          Tone.getTransport().stop(time);
+          drumRollSynth.dispose();
+          drumLoop.dispose();
+        }, 3);
+        break;
+      case "none":
+        break;
+      default:
+        break;
+    }
+  };
+
   const handleSpin = async () => {
     if (spinning || options.length === 0) {
       return;
@@ -136,6 +221,14 @@ function HomePage() {
     setSpinning(true);
     setShowPickedContestantBox(false);
     setPickedContestant(null);
+
+    if (selectedSound !== "none" && startAudioContext()) {
+      Tone.getContext()
+        .resume()
+        .then(() => {
+          startSpinningSound(selectedSound);
+        });
+    }
 
     // Reset transform to ensure the animation is triggered every time
     setTransform("rotate(0deg)");
@@ -391,6 +484,54 @@ function HomePage() {
                   />
                 </div>
               )}
+              {activeTab === "sound" && (
+                <div className="sound-options-container">
+                  <h3 className="text-md font-bold text-gray-700 mb-1">
+                    Select Spin Sound
+                  </h3>
+                  <hr className="border-gray-300 p-2" />
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="classic"
+                      checked={selectedSound === "classic"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    Classic
+                  </label>
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="chime"
+                      checked={selectedSound === "chime"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    Chime
+                  </label>
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="drumroll"
+                      checked={selectedSound === "drumroll"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    Drum Roll
+                  </label>
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="none"
+                      checked={selectedSound === "none"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    None
+                  </label>
+                </div>
+              )}
               {activeTab === "order" && (
                 <>
                   <div className="action-button-group">
@@ -403,7 +544,7 @@ function HomePage() {
                       Delete
                     </button>
                   </div>
-                  <hr className="border-t border-gray-300" />
+                  <hr className="border-gray-300" />
                   {pastOrders.length > 0 ? (
                     <div className="flex-grow overflow-y-auto mb-4">
                       <ul className="orders-list">
