@@ -4,7 +4,7 @@ import Image from "next/image";
 import * as Tone from "tone";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
-import deleteIcon from "../public/images/delete.svg";
+import eraserIcon from "../public/images/eraser.svg";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
 function HomePage() {
@@ -315,18 +315,19 @@ function HomePage() {
     setAscSort(!ascSort);
   };
 
-  const handleDeleteEntries = () => {
+  const handleClearEntries = () => {
     if (textAreaValue.length < 1) {
       return;
     }
     setTextAreaValue("");
   };
 
-  const handleDeletePastOrders = () => {
+  const handleClearPastOrders = () => {
     if (pastOrders.length < 1) {
       return;
     }
     setPastOrders([]);
+    setOrderCount(0);
   };
 
   const handleDownloadOrders = () => {
@@ -445,12 +446,12 @@ function HomePage() {
                       Sort
                     </button>
                     <button
-                      onClick={handleDeleteEntries}
+                      onClick={handleClearEntries}
                       disabled={options.length < 1}
                       className="action-button flex items-center gap-1"
                     >
-                      <Image src={deleteIcon} alt="delete icon" />
-                      Delete
+                      <Image src={eraserIcon} alt="eraser icon" />
+                      Clear
                     </button>
                   </div>
                   <label
@@ -536,12 +537,12 @@ function HomePage() {
                 <>
                   <div className="action-button-group">
                     <button
-                      onClick={handleDeletePastOrders}
+                      onClick={handleClearPastOrders}
                       disabled={pastOrders.length < 1}
                       className="action-button flex items-center gap-1"
                     >
-                      <Image src={deleteIcon} alt="delete icon" />
-                      Delete
+                      <Image src={eraserIcon} alt="eraser icon" />
+                      Clear
                     </button>
                   </div>
                   <hr className="border-gray-300" />
