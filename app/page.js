@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import * as Tone from "tone";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
 import eraserIcon from "../public/images/eraser.svg";
@@ -22,6 +21,7 @@ function HomePage() {
   const [ascSort, setAscSort] = useState(false);
   const [showPickedContestantBox, setShowPickedContestantBox] = useState(false);
   const [pickedContestant, setPickedContestant] = useState(null);
+  const [Tone, setTone] = useState(null);
   const [selectedSound, setSelectedSound] = useState("classic");
 
   const spinCount = useRef(0);
@@ -29,6 +29,20 @@ function HomePage() {
 
   const TITLE = "Sorting Wheel";
   const MAX_CONTESTANT_ENTRY = 15;
+
+  // Dynamically import the canvas-confetti library
+  useEffect(() => {
+    import("canvas-confetti").then((confetti) => {
+      confettiRef.current = confetti.default;
+    });
+  }, []);
+
+  // Dynamically import tone library
+  useEffect(() => {
+    import("tone").then((module) => {
+      setTone(module);
+    });
+  }, []);
 
   // Effect to parse textarea value into options
   useEffect(() => {
@@ -79,13 +93,6 @@ function HomePage() {
     }
   }, [options]);
 
-  // Dynamically import the canvas-confetti library
-  useEffect(() => {
-    import("canvas-confetti").then((confetti) => {
-      confettiRef.current = confetti.default;
-    });
-  }, []);
-
   const startAudioContext = useCallback(async () => {
     if (!Tone) {
       console.log("tone js package is not loaded");
@@ -96,13 +103,13 @@ function HomePage() {
         await Tone.start();
         return true;
       } catch (error) {
-        console.log(`Failed to start Tonel.js Audio Context. error: ${error}`);
+        console.log(`Failed to start tone.js Audio Context. error: ${error}`);
         return false;
       }
     } else {
       return true;
     }
-  }, []);
+  }, [Tone]);
 
   const playApplause = useCallback(() => {
     if (!Tone) {
@@ -126,7 +133,7 @@ function HomePage() {
           synth.dispose(); // Removes the synth from the audio graph
         }, now + 1.5);
       });
-  }, []);
+  }, [Tone]);
 
   const startSpinningSound = async (soundType) => {
     if (!Tone) {
