@@ -95,7 +95,7 @@ function HomePage() {
 
   const startAudioContext = useCallback(async () => {
     if (!Tone) {
-      console.log("tone js package is not loaded");
+      console.error("tone js package is not loaded");
       return false;
     }
     if (Tone.getContext().state !== "running") {
@@ -103,7 +103,7 @@ function HomePage() {
         await Tone.start();
         return true;
       } catch (error) {
-        console.log(`Failed to start tone.js Audio Context. error: ${error}`);
+        console.error(`Failed to start tone.js Audio Context. error: ${error}`);
         return false;
       }
     } else {
@@ -113,7 +113,7 @@ function HomePage() {
 
   const playApplause = useCallback(() => {
     if (!Tone) {
-      console.log("no tone js library");
+      console.error("no tone js library");
       return;
     }
     Tone.getContext()
@@ -238,7 +238,7 @@ function HomePage() {
           startSpinningSound(selectedSound);
         });
     } else {
-      console.log("sound type not selected or audio context not started.");
+      console.error("sound type not selected or audio context not started.");
     }
 
     // Reset transform to ensure the animation is triggered every time
@@ -271,7 +271,7 @@ function HomePage() {
       if (audioStarted) {
         playApplause();
       } else {
-        console.log(`audio has not started: ${Tone.getContext().state}`);
+        console.error(`audio has not started: ${Tone.getContext().state}`);
       }
 
       setShowPickedContestantBox(true);
@@ -476,9 +476,6 @@ function HomePage() {
                     onChange={(e) => {
                       const newValue = e.target.value;
                       const values = newValue.split("\n");
-                      console.log(
-                        `values: ${values}. length: ${values.length}`,
-                      );
                       if (values.length > MAX_CONTESTANT_ENTRY) {
                         const truncatedValue = values
                           .slice(0, MAX_CONTESTANT_ENTRY)
