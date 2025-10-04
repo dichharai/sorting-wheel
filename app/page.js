@@ -3,8 +3,8 @@
 import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
-import deleteIcon from "../public/images/delete.svg";
-import React, { useState, useRef, useEffect } from "react";
+import eraserIcon from "../public/images/eraser.svg";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 
 function HomePage() {
   const [textAreaValue, setTextAreaValue] = useState(
@@ -21,6 +21,8 @@ function HomePage() {
   const [ascSort, setAscSort] = useState(false);
   const [showPickedContestantBox, setShowPickedContestantBox] = useState(false);
   const [pickedContestant, setPickedContestant] = useState(null);
+  const [Tone, setTone] = useState(null);
+  const [selectedSound, setSelectedSound] = useState("classic");
 
   const spinCount = useRef(0);
   const confettiRef = useRef(null);
@@ -28,23 +30,19 @@ function HomePage() {
   const TITLE = "Sorting Wheel";
   const MAX_CONTESTANT_ENTRY = 15;
 
-  const SEGMENT_COLORS = [
-    "#6600FF", // electric indigo
-    "#228B22", // forest green
-    "#DA3287", // deep cerise
-    "#0F52BA", // sapphire
-    "#FF8C00", // marigold
-    "#0038A8", // royal blue
-    "#FF5E00", // bright orange
-    "#FF69B4", // hot pink
-    "#FF2400", // scarlet red
-    "#40E0D0", // turquoise
-    "#E0115F", // ruby red
-    "#CCFF00", // neon green
-    "#E25822", // flame
-    "#FFD700", // gold
-    "#008080", // teal
-  ];
+  // Dynamically import the canvas-confetti library
+  useEffect(() => {
+    import("canvas-confetti").then((confetti) => {
+      confettiRef.current = confetti.default;
+    });
+  }, []);
+
+  // Dynamically import tone library
+  useEffect(() => {
+    import("tone").then((module) => {
+      setTone(module);
+    });
+  }, []);
 
   // Effect to parse textarea value into options
   useEffect(() => {
@@ -56,6 +54,23 @@ function HomePage() {
   }, [textAreaValue]);
 
   useEffect(() => {
+    const SEGMENT_COLORS = [
+      "#6600FF", // electric indigo
+      "#228B22", // forest green
+      "#DA3287", // deep cerise
+      "#0F52BA", // sapphire
+      "#FF8C00", // marigold
+      "#0038A8", // royal blue
+      "#FF5E00", // bright orange
+      "#FF69B4", // hot pink
+      "#FF2400", // scarlet red
+      "#40E0D0", // turquoise
+      "#E0115F", // ruby red
+      "#CCFF00", // neon green
+      "#E25822", // flame
+      "#FFD700", // gold
+      "#008080", // teal
+    ];
     if (options.length > 0) {
       const degreePerOption = 360 / options.length;
 
@@ -78,12 +93,132 @@ function HomePage() {
     }
   }, [options]);
 
-  // Dynamically import the canvas-confetti library
-  useEffect(() => {
-    import("canvas-confetti").then((confetti) => {
-      confettiRef.current = confetti.default;
-    });
-  }, []);
+  const startAudioContext = useCallback(async () => {
+    if (!Tone) {
+      console.error("tone js package is not loaded");
+      return false;
+    }
+    if (Tone.getContext().state !== "running") {
+      try {
+        await Tone.start();
+        return true;
+      } catch (error) {
+        console.error(`Failed to start tone.js Audio Context. error: ${error}`);
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }, [Tone]);
+
+  const playApplause = useCallback(() => {
+    if (!Tone) {
+      console.error("no tone js library");
+      return;
+    }
+    Tone.getContext()
+      .resume()
+      .then(() => {
+        // 1. Create a synth (PolySynth for a fuller sound)
+        const synth = new Tone.PolySynth(Tone.AMSynth, {
+          oscillator: { type: "triangle" },
+        }).toDestination();
+
+        //2. Play C Major chord for 1 second
+        const now = Tone.now();
+        synth.triggerAttackRelease(["C4", "E4", "G4"], "1n", now);
+
+        // Schedule the synth to be cleaned up after the note finishes
+        Tone.getTransport().scheduleOnce(() => {
+          synth.dispose(); // Removes the synth from the audio graph
+        }, now + 1.5);
+      });
+  }, [Tone]);
+
+  const startSpinningSound = async (soundType) => {
+    if (!Tone) {
+      return;
+    }
+
+    switch (soundType) {
+      case "classic":
+        // 1. Low-frequency oscillator that sweeps rapidly (6Hz, max 10Hz) between 440 Hz (A4) and 880 Hz (A5)
+        const spinningLFO = new Tone.LFO(6, 440, 880).start();
+
+        // 2. Create a Synth with a square wave abd a specific volume envelope
+        const spinningSynth = new Tone.Synth({
+          oscillator: { type: "square" },
+          envelope: { attack: 0.1, decay: 0.2, sustain: 1, release: 0.9 },
+        }).toDestination();
+
+        // 3. Connects the LFO's output (the sweeping frequency) directly to the synth's pitch
+        // This creates a the spinning/siren sound.
+        // The "C4" is ignored here b/c the LFO is overriding the frequency.
+        spinningLFO.connect(spinningSynth.oscillator.frequency);
+
+        const now = Tone.now();
+
+        // 4. Triggers the note to start immediately and release after 1 half notes (1 second)
+        spinningSynth.triggerAttackRelease("C4", "1n", now);
+
+        // 5. Schedule the Stop Event after 3s
+        Tone.getTransport().scheduleOnce((time) => {
+          spinningLFO.stop(time);
+          spinningSynth.dispose();
+          spinningLFO.dispose();
+        }, now + 3);
+        break;
+      case "chime":
+        // 1. Setup a synth
+        const chimeSynth = new Tone.PolySynth(Tone.Synth, {
+          oscillator: { type: "triangle" },
+          envelope: { attack: 0.005, decay: 0.1, sustain: 0.05, release: 0.9 },
+        }).toDestination();
+
+        // 2. Setup looping event
+        const chimeLoop = new Tone.Loop((time) => {
+          chimeSynth.triggerAttackRelease(["C4", "E4", "G4"], "8n", time);
+        }, "4n").start(0);
+
+        // start the Transport (global clock)
+        Tone.getTransport().start();
+
+        // 3. schedule the Stop Event after 3s
+        Tone.getTransport().scheduleOnce((time) => {
+          Tone.getTransport().stop(time);
+          // warning for using schedule time disappears if the dispose is not made explicit
+          chimeSynth.dispose();
+          chimeLoop.dispose();
+        }, 3);
+        break;
+      case "drumroll":
+        // 1. Setup a synth
+        const drumRollSynth = new Tone.NoiseSynth({
+          noise: { type: "white" },
+          envelope: { attack: 0.001, decay: 0.1, sustain: 0.1, release: 0.2 },
+        }).toDestination();
+
+        // 2. Setup looping event
+        const drumLoop = new Tone.Loop((time) => {
+          drumRollSynth.triggerAttackRelease("16n", time);
+        }, "16n").start(0);
+
+        // start the Transport (global clock)
+        Tone.getTransport().start();
+
+        // 3. schedule the Stop Event after 3s
+        Tone.getTransport().scheduleOnce((time) => {
+          Tone.getTransport().stop(time);
+          drumRollSynth.dispose();
+          drumLoop.dispose();
+        }, 3);
+        break;
+      case "none":
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleSpin = async () => {
     if (spinning || options.length === 0) {
@@ -93,6 +228,18 @@ function HomePage() {
     setSpinning(true);
     setShowPickedContestantBox(false);
     setPickedContestant(null);
+
+    const audioStarted = await startAudioContext();
+
+    if (selectedSound !== "none" && audioStarted) {
+      Tone.getContext()
+        .resume()
+        .then(() => {
+          startSpinningSound(selectedSound);
+        });
+    } else {
+      console.error("sound type not selected or audio context not started.");
+    }
 
     // Reset transform to ensure the animation is triggered every time
     setTransform("rotate(0deg)");
@@ -107,7 +254,7 @@ function HomePage() {
 
     setTransform(`rotate(${finalDegree}deg)`);
 
-    setTimeout(() => {
+    setTimeout(async () => {
       setSpinning(false);
       const contestantName = options[randomIndex];
       setOrderCount((orderCount) => orderCount + 1);
@@ -119,6 +266,12 @@ function HomePage() {
 
       if (confettiRef.current) {
         fireConfetti();
+      }
+
+      if (audioStarted) {
+        playApplause();
+      } else {
+        console.error(`audio has not started: ${Tone.getContext().state}`);
       }
 
       setShowPickedContestantBox(true);
@@ -171,18 +324,19 @@ function HomePage() {
     setAscSort(!ascSort);
   };
 
-  const handleDeleteEntries = () => {
+  const handleClearEntries = () => {
     if (textAreaValue.length < 1) {
       return;
     }
     setTextAreaValue("");
   };
 
-  const handleDeletePastOrders = () => {
+  const handleClearPastOrders = () => {
     if (pastOrders.length < 1) {
       return;
     }
     setPastOrders([]);
+    setOrderCount(0);
   };
 
   const handleDownloadOrders = () => {
@@ -301,12 +455,12 @@ function HomePage() {
                       Sort
                     </button>
                     <button
-                      onClick={handleDeleteEntries}
+                      onClick={handleClearEntries}
                       disabled={options.length < 1}
                       className="action-button flex items-center gap-1"
                     >
-                      <Image src={deleteIcon} alt="delete icon" />
-                      Delete
+                      <Image src={eraserIcon} alt="eraser icon" />
+                      Clear
                     </button>
                   </div>
                   <label
@@ -322,9 +476,6 @@ function HomePage() {
                     onChange={(e) => {
                       const newValue = e.target.value;
                       const values = newValue.split("\n");
-                      console.log(
-                        `values: ${values}. length: ${values.length}`,
-                      );
                       if (values.length > MAX_CONTESTANT_ENTRY) {
                         const truncatedValue = values
                           .slice(0, MAX_CONTESTANT_ENTRY)
@@ -340,19 +491,67 @@ function HomePage() {
                   />
                 </div>
               )}
+              {activeTab === "sound" && (
+                <div className="sound-options-container">
+                  <h3 className="text-md font-bold text-gray-700 mb-1">
+                    Select Spin Sound
+                  </h3>
+                  <hr className="border-gray-300 p-2" />
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="classic"
+                      checked={selectedSound === "classic"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    Classic
+                  </label>
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="chime"
+                      checked={selectedSound === "chime"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    Chime
+                  </label>
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="drumroll"
+                      checked={selectedSound === "drumroll"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    Drum Roll
+                  </label>
+                  <label className="sound-option">
+                    <input
+                      type="radio"
+                      name="sound"
+                      value="none"
+                      checked={selectedSound === "none"}
+                      onChange={(e) => setSelectedSound(e.target.value)}
+                    />
+                    None
+                  </label>
+                </div>
+              )}
               {activeTab === "order" && (
                 <>
                   <div className="action-button-group">
                     <button
-                      onClick={handleDeletePastOrders}
+                      onClick={handleClearPastOrders}
                       disabled={pastOrders.length < 1}
                       className="action-button flex items-center gap-1"
                     >
-                      <Image src={deleteIcon} alt="delete icon" />
-                      Delete
+                      <Image src={eraserIcon} alt="eraser icon" />
+                      Clear
                     </button>
                   </div>
-                  <hr className="border-t border-gray-300" />
+                  <hr className="border-gray-300" />
                   {pastOrders.length > 0 ? (
                     <div className="flex-grow overflow-y-auto mb-4">
                       <ul className="orders-list">

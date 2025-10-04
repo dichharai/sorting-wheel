@@ -2,7 +2,7 @@ import "./css/global.css";
 import "./css/page.css";
 
 export const metadata = {
-  title: "Sorting Hat",
+  title: "Sorting Wheel",
   description: "A spinner for picking contestant order.",
 };
 
