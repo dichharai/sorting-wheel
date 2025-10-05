@@ -113,7 +113,7 @@ function HomePage() {
 
   const playApplause = useCallback(() => {
     if (!Tone) {
-      console.log("no tone js library");
+      console.log("no tone js library.");
       return;
     }
     Tone.getContext()
@@ -229,7 +229,7 @@ function HomePage() {
         fireConfetti();
       }
 
-      if (audioStarted) {
+      if (audioStarted && soundOn) {
         playApplause();
       } else {
         console.log(`audio has not started: ${Tone.getContext().state}`);
