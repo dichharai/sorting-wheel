@@ -4,6 +4,7 @@ import Image from "next/image";
 import shuffleIcon from "../public/images/shuffle.svg";
 import sortIcon from "../public/images/sort.svg";
 import eraserIcon from "../public/images/eraser.svg";
+import copyIcon from "../public/images/copy.svg";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
 function HomePage() {
@@ -23,6 +24,7 @@ function HomePage() {
   const [pickedContestant, setPickedContestant] = useState(null);
   const [Tone, setTone] = useState(null);
   const [soundOn, setSoundOn] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   const spinCount = useRef(0);
   const confettiRef = useRef(null);
@@ -293,6 +295,25 @@ function HomePage() {
     setTextAreaValue("");
   };
 
+  const getContestantOrder = () => {
+    const header = "Number,Name\n";
+    const csvContent =
+      header + pastOrders.map((o) => `${o.number},"${o.name}"`).join("\n");
+
+    return csvContent;
+  };
+
+  const handleCopyPastOrders = async () => {
+    try {
+      const contestantOrder = getContestantOrder();
+      await navigator.clipboard.writeText(contestantOrder);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // reset copied after 2 seconds
+    } catch (err) {
+      console.error(`Failed to copy: ${err}`);
+    }
+  };
+
   const handleClearPastOrders = () => {
     if (pastOrders.length < 1) {
       return;
@@ -309,10 +330,10 @@ function HomePage() {
     if (pastOrders.length === 0) {
       return;
     }
-    const header = "Number,Name\n";
-    const csvContent =
-      header + pastOrders.map((o) => `${o.number},"${o.name}"`).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const contestantOrder = getContestantOrder();
+    const blob = new Blob([contestantOrder], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -483,6 +504,14 @@ function HomePage() {
               {activeTab === "order" && (
                 <>
                   <div className="action-button-group">
+                    <button
+                      onClick={handleCopyPastOrders}
+                      disabled={pastOrders.length < 1}
+                      className="action-button flex items-center gap-1"
+                    >
+                      <Image src={copyIcon} alt="eraser icon" />
+                      {copied ? "Copied! " : "Copy"}
+                    </button>
                     <button
                       onClick={handleClearPastOrders}
                       disabled={pastOrders.length < 1}
