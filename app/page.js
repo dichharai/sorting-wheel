@@ -290,7 +290,8 @@ function HomePage() {
     const degreePerOption = 360 / options.length;
 
     // Calculate the degree for the text, then subtract 90 to align with the wheel's top-down layout
-    const rotateDegree = index * degreePerOption + degreePerOption / 2 - 90;
+    // Subtracting 5 for alinging to center of segment
+    const rotateDegree = index * degreePerOption + degreePerOption / 2 - 90 - 5;
 
     return {
       transform: `rotate(${rotateDegree}deg) translateX(6.5rem)`,
