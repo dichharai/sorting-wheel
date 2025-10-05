@@ -214,14 +214,3 @@
     color: #1f2937;
     text-shadow: 2px 2px #fcd34d;
 }
-
-.sound-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.sound-option input[type="radio"] {
-    accent-color: #f59e0b;
-}
