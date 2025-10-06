@@ -58,7 +58,7 @@ Thank you for supporting my vision, offering consistently valuable feedback, sac
 
 **Team Members**
 
-- Dennis Meng (code reviewer)
+- Dennis Meng (Code Reviewer)
 - Derek Sowers (Application Tester)
 
 Thank you for diligently reviewing my code despite your demanding work schedules and for providing detailed, actionable feedback.
