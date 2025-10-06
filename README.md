@@ -4,6 +4,10 @@ A spinner to pick contestant order for [San Francisco Toastmasters club](https:/
 
 You can access the **Sorting Wheel** spinner [here](https://sorting-wheel.vercel.app/).
 
+## For User
+
+This is the [User Guide](UserGuide.pdf) on the Sorting Wheel application.
+
 ## For Developer
 
 The application is made using `Next.js`, a `React` framework.
@@ -38,6 +42,28 @@ Start your development Node.js server:
 **Command to run formatter**
 
 `npm run format`
+
+## Acknowledgement
+
+This project was completed as part of the High Performance Leadership level 5 requirement of the Toastmasters [Pathways Program](https://www.toastmasters.org/education/pathways).
+
+I extend my sincere gratitude to my Guidance Committee members and Team Members for their unwavering support, invaluable feedback, and dedication to helping me bring this application to life.
+
+**Guidance Committee Members**
+
+- Nancy Tabor
+- Terry Joyce
+
+Thank you for supporting my vision, offering consistently valuable feedback, sacrificing your time for those early-morning weekend meetings, and for the key encouragement to sign up for my first speech! I am forever grateful for your mentorship.
+
+**Team Members**
+
+- Dennis Meng (Code Reviewer)
+- Derek Sowers (Application Tester)
+
+Thank you for diligently reviewing my code despite your demanding work schedules and for providing detailed, actionable feedback.
+
+You all continue to be a profound source of inspiration.
 
 ### Credits
 
