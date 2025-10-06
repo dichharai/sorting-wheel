@@ -6,7 +6,7 @@ You can access the **Sorting Wheel** spinner [here](https://sorting-wheel.vercel
 
 ## For User
 
-This is the [User Guide](UserGuide.pdf) on the Sorting Wheel application.
+This is the [User Guide](UserGuide.pdf) for the Sorting Wheel application.
 
 ## For Developer
 
