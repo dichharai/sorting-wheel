@@ -10,7 +10,7 @@ The following are the steps to use the wheel:
 
 ![Contestant Entry](public/user-guide/sw-contestant-entry.jpg)
 
-2. You can **turn on** or **off** the sound in the sound tab of the Configuration Panel by sliding the toggle button. Default is **on**.
+2. You can **turn on** or **off** the sound in the sound tab of the Configuration Panel by sliding the toggle button. Default is **on**. While sharing the screen in zoom, make sure to check the "Share sound" box in the "Share Screen" pop-up window before you begin sharing.
 
 <p align="left">
     <img alt="sound-on" src="public/user-guide/sw-sound-on.jpg" width="48%"/> &nbsp;
