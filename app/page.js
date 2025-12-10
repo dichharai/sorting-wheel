@@ -30,7 +30,6 @@ function HomePage() {
   const confettiRef = useRef(null);
 
   const TITLE = "Sorting Wheel";
-  const MAX_CONTESTANT_ENTRY = 15;
 
   // Dynamically import the canvas-confetti library
   useEffect(() => {
@@ -80,8 +79,14 @@ function HomePage() {
       let conicGradientString = "conic-gradient(from 0deg, ";
       let currentDegree = 0;
       options.forEach((_, index) => {
-        const color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
-
+        let color;
+        // To avoid last option and first option's color segment be the same.
+        // For eg. idx === 15 and color will be indigo as the first color in SEGMENT_COLORS
+        if (index >= 15 && index % SEGMENT_COLORS.length === 0) {
+          color = SEGMENT_COLORS[Math.floor(SEGMENT_COLORS.length / 2)];
+        } else {
+          color = SEGMENT_COLORS[index % SEGMENT_COLORS.length];
+        }
         conicGradientString += `${color} ${currentDegree}deg, ${color} ${currentDegree + degreePerOption}deg, `;
         currentDegree += degreePerOption;
       });
@@ -310,7 +315,7 @@ function HomePage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000); // reset copied after 2 seconds
     } catch (err) {
-      console.error(`Failed to copy: ${err}`);
+      console.log(`Failed to copy: ${err}`);
     }
   };
 
@@ -454,23 +459,14 @@ function HomePage() {
                     htmlFor="options-textarea"
                     className="block text-sm font-medium text-gray-700 mb-1"
                   >
-                    Enter a list of names (one per line, max{" "}
-                    {MAX_CONTESTANT_ENTRY}):
+                    Enter a list of names (one per line):
                   </label>
                   <textarea
                     id="options-textarea"
                     value={textAreaValue}
                     onChange={(e) => {
                       const newValue = e.target.value;
-                      const values = newValue.split("\n");
-                      if (values.length > MAX_CONTESTANT_ENTRY) {
-                        const truncatedValue = values
-                          .slice(0, MAX_CONTESTANT_ENTRY)
-                          .join("\n");
-                        setTextAreaValue(truncatedValue);
-                      } else {
-                        setTextAreaValue(newValue);
-                      }
+                      setTextAreaValue(newValue);
                     }}
                     rows="8"
                     className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500"
